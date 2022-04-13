@@ -23,19 +23,26 @@ void print_bitboard(U64 bitboard) {
         std::cout << "\n";
     }
 
-    std::cout << "\n   a b c d e f g h" << std::endl;
+    std::cout << "\n   a b c d e f g h" << "\n\n";
 }
 
 U64 set_bit(U64 bitboard, int tile) {
     return bitboard | (1ULL << tile);
 }
 
-U64 get_bit(U64 bitboard, int tile) {
-    return bitboard & (1ULL << tile);
+int get_bit(U64 bitboard, int tile) {
+    return bitboard & (1ULL << tile) ? 1 : 0;
+}
+
+U64 del_bit(U64 bitboard, int tile) {
+    return bitboard & (1ULL << tile) ? bitboard ^ (1ULL << tile) : 0;
 }
 int main() {
     U64 new_bitboard = 0ULL;
     new_bitboard = set_bit(new_bitboard, e4);
     print_bitboard(new_bitboard);
+    new_bitboard = del_bit(new_bitboard, e4);
+    print_bitboard(new_bitboard);
+
     return 0;
 }
