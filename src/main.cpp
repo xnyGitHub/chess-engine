@@ -1,6 +1,8 @@
 #include <iostream>
 #define U64 unsigned long long
 
+// Right shift = closer to start
+// Left shift = closer to end
 enum board_tiles {
     a8,b8,c8,d8,e8,f8,g8,h8,
     a7,b7,c7,d7,e7,f7,g7,h7,
@@ -87,9 +89,28 @@ U64 generate_knight_attack_mask(int square, int color){
 
     return attacks;
 }
+
+U64 generate_king_attack_mask(int square, int color){
+    U64 attacks = 0ULL;
+    U64 bitboard = 0ULL;
+    bitboard = set_bit(bitboard, square);
+
+    // Right shifts
+    attacks =  attacks | (not_a_bitboard & bitboard) >> 9;
+    attacks =  attacks | bitboard >> 8;
+    attacks =  attacks | (not_h_bitboard & bitboard) >> 7;
+    attacks =  attacks | (not_a_bitboard & bitboard) >> 1;
+
+    attacks =  attacks | (not_h_bitboard & bitboard) << 1;
+    attacks =  attacks | (not_a_bitboard & bitboard) << 7;
+    attacks =  attacks | bitboard << 8;
+    attacks =  attacks | (not_h_bitboard & bitboard) << 9;
+
+    return attacks;
+}
 int main() {
     U64 new_bitboard = 0ULL;
-    new_bitboard = generate_knight_attack_mask(b5,  white);
+    new_bitboard = generate_king_attack_mask(h8,  white);
     print_bitboard(new_bitboard);
 
     return 0;
