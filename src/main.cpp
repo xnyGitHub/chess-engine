@@ -15,32 +15,10 @@ enum board_tiles {
 enum { white, black };
 
 const U64 not_a_bitboard = 18374403900871474942ULL;
-/*
-8  0 1 1 1 1 1 1 1
-7  0 1 1 1 1 1 1 1
-6  0 1 1 1 1 1 1 1
-5  0 1 1 1 1 1 1 1
-4  0 1 1 1 1 1 1 1
-3  0 1 1 1 1 1 1 1
-2  0 1 1 1 1 1 1 1
-1  0 1 1 1 1 1 1 1
-
-   a b c d e f g h
- */
-
 const U64 not_h_bitboard = 9187201950435737471ULL;
-/*
-8  1 1 1 1 1 1 1 0
-7  1 1 1 1 1 1 1 0
-6  1 1 1 1 1 1 1 0
-5  1 1 1 1 1 1 1 0
-4  1 1 1 1 1 1 1 0
-3  1 1 1 1 1 1 1 0
-2  1 1 1 1 1 1 1 0
-1  1 1 1 1 1 1 1 0
-   a b c d e f g h
+const U64 not_ab_bitboard = 18229723555195321596ULL;
+const U64 not_gh_bitboard = 4557430888798830399ULL;
 
- */
 void print_bitboard(U64 bitboard) {
     for (int rank = 0; rank < 8; rank++){
         std::cout << -(rank-8) << "  ";
@@ -68,13 +46,12 @@ U64 del_bit(U64 bitboard, int tile) {
 }
 
 U64 generate_pawn_attack_mask(int square, int color){
-    // Important constants
 
-
-    // White pawn
     U64 attacks = 0ULL;
     U64 bitboard = 0ULL;
     bitboard = set_bit(bitboard, square);
+
+    // White pawn
     if (!color) {
         attacks =  attacks | (not_a_bitboard & bitboard) >> 9;
         attacks =  attacks | (not_h_bitboard & bitboard) >> 7;
@@ -84,9 +61,36 @@ U64 generate_pawn_attack_mask(int square, int color){
     }
     return attacks;
 }
+
+U64 generate_knight_attack_mask(int square, int color){
+    // Knight movements from Top left -> Bottom right
+    // 17,15 ,10 ,6, -6, -10, -15, -17
+
+
+    // White pawn
+    U64 attacks = 0ULL;
+    U64 bitboard = 0ULL;
+    bitboard = set_bit(bitboard, square);
+
+    // Top- left
+    attacks =  attacks | (not_a_bitboard & bitboard) >> 17;
+    attacks =  attacks | (not_ab_bitboard & bitboard) >> 10;
+    // Top right
+    attacks =  attacks | (not_gh_bitboard & bitboard) >> 6;
+    attacks =  attacks | (not_h_bitboard & bitboard) >> 15;
+    // Bottom-left
+    attacks =  attacks | (not_ab_bitboard & bitboard) << 6;
+    attacks =  attacks | (not_a_bitboard & bitboard) << 15;
+    // Bottom-right
+    attacks =  attacks | (not_gh_bitboard & bitboard) << 10;
+    attacks =  attacks | (not_h_bitboard & bitboard) << 17;
+
+    return attacks;
+}
 int main() {
     U64 new_bitboard = 0ULL;
-    new_bitboard = generate_pawn_attack_mask(h8,  black);
+    new_bitboard = generate_knight_attack_mask(b5,  white);
     print_bitboard(new_bitboard);
+
     return 0;
 }
