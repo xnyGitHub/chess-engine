@@ -12,6 +12,35 @@ enum board_tiles {
     a1,b1,c1,d1,e1,f1,g1,h1,
     };
 
+enum { white, black };
+
+const U64 not_a_bitboard = 18374403900871474942ULL;
+/*
+8  0 1 1 1 1 1 1 1
+7  0 1 1 1 1 1 1 1
+6  0 1 1 1 1 1 1 1
+5  0 1 1 1 1 1 1 1
+4  0 1 1 1 1 1 1 1
+3  0 1 1 1 1 1 1 1
+2  0 1 1 1 1 1 1 1
+1  0 1 1 1 1 1 1 1
+
+   a b c d e f g h
+ */
+
+const U64 not_h_bitboard = 9187201950435737471ULL;
+/*
+8  1 1 1 1 1 1 1 0
+7  1 1 1 1 1 1 1 0
+6  1 1 1 1 1 1 1 0
+5  1 1 1 1 1 1 1 0
+4  1 1 1 1 1 1 1 0
+3  1 1 1 1 1 1 1 0
+2  1 1 1 1 1 1 1 0
+1  1 1 1 1 1 1 1 0
+   a b c d e f g h
+
+ */
 void print_bitboard(U64 bitboard) {
     for (int rank = 0; rank < 8; rank++){
         std::cout << -(rank-8) << "  ";
@@ -37,12 +66,27 @@ int get_bit(U64 bitboard, int tile) {
 U64 del_bit(U64 bitboard, int tile) {
     return bitboard & (1ULL << tile) ? bitboard ^ (1ULL << tile) : 0;
 }
+
+U64 generate_pawn_attack_mask(int square, int color){
+    // Important constants
+
+
+    // White pawn
+    U64 attacks = 0ULL;
+    U64 bitboard = 0ULL;
+    bitboard = set_bit(bitboard, square);
+    if (!color) {
+        attacks =  attacks | (not_a_bitboard & bitboard) >> 9;
+        attacks =  attacks | (not_h_bitboard & bitboard) >> 7;
+    } else {
+        attacks = attacks | (not_a_bitboard & bitboard) << 7;
+        attacks = attacks | (not_h_bitboard & bitboard) << 9;
+    }
+    return attacks;
+}
 int main() {
     U64 new_bitboard = 0ULL;
-    new_bitboard = set_bit(new_bitboard, e4);
+    new_bitboard = generate_pawn_attack_mask(h8,  black);
     print_bitboard(new_bitboard);
-    new_bitboard = del_bit(new_bitboard, e4);
-    print_bitboard(new_bitboard);
-
     return 0;
 }
