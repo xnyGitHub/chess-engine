@@ -16,6 +16,9 @@ enum board_tiles {
 
 enum { white, black };
 
+U64 bishop_mask[64];
+U64 rook_mask[64];
+
 const U64 not_a_bitboard = 18374403900871474942ULL;
 const U64 not_h_bitboard = 9187201950435737471ULL;
 const U64 not_ab_bitboard = 18229723555195321596ULL;
@@ -240,10 +243,35 @@ U64 generate_king_attack_mask(int square, int color){
 
     return attacks;
 }
+
+void generate_bishop_rays() {
+    // Loop through all the tiles
+    for (int square = 0; square < 64; square++) {
+        U64 attacks = 0ULL;
+
+        int trow = square / 8;
+        int tfile = square % 8;
+        int row,file;
+
+        // South-East mask
+        for (row = trow+1, file = tfile +1; row<=6 && file <= 6; row++, file++) attacks |= (1ULL << (row * 8 +file));
+        // South-West mask
+        for (row = trow+1, file = tfile -1; row<=6 && file >= 1; row++, file--) attacks |= (1ULL << (row * 8 +file));
+        // North-West mask
+        for (row = trow-1, file = tfile -1; row>=1 && file >= 1; row--, file--) attacks |= (1ULL << (row * 8 +file));
+        // North-East mask
+        for (row = trow-1, file = tfile +1; row>=1 && file <= 6; row--, file++) attacks |= (1ULL << (row * 8 +file));
+        bishop_mask[square] = attacks;
+    }
+
+}
+
 int main() {
     U64 new_bitboard = 0ULL;
-    new_bitboard = generate_king_attack_mask(h8,  white);
-    print_bitboard(new_bitboard);
+    generate_bishop_rays();
+    print_bitboard(bishop_mask[d4]);
+//    new_bitboard = generate_king_attack_mask(h8,  white);
+//    print_bitboard(new_bitboard);
 
     return 0;
 }
