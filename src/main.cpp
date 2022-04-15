@@ -18,6 +18,7 @@ enum { white, black };
 
 U64 bishop_mask[64];
 U64 rook_mask[64];
+U64 queen_mask[64];
 
 const U64 not_a_bitboard = 18374403900871474942ULL;
 const U64 not_h_bitboard = 9187201950435737471ULL;
@@ -262,6 +263,7 @@ void generate_bishop_rays() {
         // North-East mask
         for (row = trow-1, file = tfile +1; row>=1 && file <= 6; row--, file++) attacks |= (1ULL << (row * 8 +file));
         bishop_mask[square] = attacks;
+        queen_mask[square] |= attacks;
     }
 
 }
@@ -288,15 +290,19 @@ void generate_rook_rays() {
         for (file = actual_file-1; file>=1; file--) attacks |= (1ULL << (actual_row * 8 +file));
 
         rook_mask[square] = attacks;
+        queen_mask[square] |= attacks;
     }
 
 }
+
 
 int main() {
     U64 new_bitboard = 0ULL;
     generate_bishop_rays();
     generate_rook_rays();
-    print_bitboard(rook_mask[h8]);
+    print_bitboard(bishop_mask[d4]);
+    print_bitboard(rook_mask[d4]);
+    print_bitboard(queen_mask[d4]);
 //    new_bitboard = generate_king_attack_mask(h8,  white);
 //    print_bitboard(new_bitboard);
 
