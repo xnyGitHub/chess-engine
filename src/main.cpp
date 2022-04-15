@@ -266,10 +266,37 @@ void generate_bishop_rays() {
 
 }
 
+void generate_rook_rays() {
+    // Loop through all the tiles
+    for (int square = 0; square < 64; square++) {
+        U64 attacks = 0ULL;
+
+        int actual_row = square / 8;
+        int actual_file = square % 8;
+        int row,file;
+
+        // North mask
+        for (row = actual_row-1; row>=1; row--) attacks |= (1ULL << (row * 8 +actual_file));
+
+        // East mask
+        for (file = actual_file+1; file<=6; file++) attacks |= (1ULL << (actual_row * 8 +file));
+
+        // South mask
+        for (row = actual_row+1; row<=6; row++) attacks |= (1ULL << (row * 8 +actual_file));
+        // West mask
+
+        for (file = actual_file-1; file>=1; file--) attacks |= (1ULL << (actual_row * 8 +file));
+
+        rook_mask[square] = attacks;
+    }
+
+}
+
 int main() {
     U64 new_bitboard = 0ULL;
     generate_bishop_rays();
-    print_bitboard(bishop_mask[d4]);
+    generate_rook_rays();
+    print_bitboard(rook_mask[h8]);
 //    new_bitboard = generate_king_attack_mask(h8,  white);
 //    print_bitboard(new_bitboard);
 
