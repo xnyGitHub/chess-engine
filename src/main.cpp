@@ -164,6 +164,14 @@ void generate_rook_rays() {
 
 }
 
+U64 BishopAttacks[64][512]; // 256 K
+U64 RookAttacks  [64][4096]; // 2048K
+void generate_rook_move_permutations() {
+}
+
+void generate_bishop_move_permutations() {
+
+}
 
 int main() {
     U64 new_bitboard = 0ULL;
