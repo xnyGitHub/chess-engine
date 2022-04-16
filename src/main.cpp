@@ -1,6 +1,9 @@
 #include <iostream>
+#include "../src/magic_constants.h"
 #define U64 unsigned long long
 
+// Right shift = closer to start
+// Left shift = closer to end
 enum board_tiles {
     a8,b8,c8,d8,e8,f8,g8,h8,
     a7,b7,c7,d7,e7,f7,g7,h7,
@@ -14,33 +17,15 @@ enum board_tiles {
 
 enum { white, black };
 
+U64 bishop_mask[64];
+U64 rook_mask[64];
+U64 queen_mask[64];
+
 const U64 not_a_bitboard = 18374403900871474942ULL;
-/*
-8  0 1 1 1 1 1 1 1
-7  0 1 1 1 1 1 1 1
-6  0 1 1 1 1 1 1 1
-5  0 1 1 1 1 1 1 1
-4  0 1 1 1 1 1 1 1
-3  0 1 1 1 1 1 1 1
-2  0 1 1 1 1 1 1 1
-1  0 1 1 1 1 1 1 1
-
-   a b c d e f g h
- */
-
 const U64 not_h_bitboard = 9187201950435737471ULL;
-/*
-8  1 1 1 1 1 1 1 0
-7  1 1 1 1 1 1 1 0
-6  1 1 1 1 1 1 1 0
-5  1 1 1 1 1 1 1 0
-4  1 1 1 1 1 1 1 0
-3  1 1 1 1 1 1 1 0
-2  1 1 1 1 1 1 1 0
-1  1 1 1 1 1 1 1 0
-   a b c d e f g h
+const U64 not_ab_bitboard = 18229723555195321596ULL;
+const U64 not_gh_bitboard = 4557430888798830399ULL;
 
- */
 void print_bitboard(U64 bitboard) {
     for (int rank = 0; rank < 8; rank++){
         std::cout << -(rank-8) << "  ";
@@ -68,13 +53,12 @@ U64 del_bit(U64 bitboard, int tile) {
 }
 
 U64 generate_pawn_attack_mask(int square, int color){
-    // Important constants
 
-
-    // White pawn
     U64 attacks = 0ULL;
     U64 bitboard = 0ULL;
     bitboard = set_bit(bitboard, square);
+
+    // White pawn
     if (!color) {
         attacks =  attacks | (not_a_bitboard & bitboard) >> 9;
         attacks =  attacks | (not_h_bitboard & bitboard) >> 7;
@@ -84,9 +68,109 @@ U64 generate_pawn_attack_mask(int square, int color){
     }
     return attacks;
 }
+
+U64 generate_knight_attack_mask(int square, int color){
+    // Knight movements from Top left -> Bottom right
+    // 17,15 ,10 ,6, -6, -10, -15, -17
+
+
+    // White pawn
+    U64 attacks = 0ULL;
+    U64 bitboard = 0ULL;
+    bitboard = set_bit(bitboard, square);
+
+    // Top- left
+    attacks =  attacks | (not_a_bitboard & bitboard) >> 17;
+    attacks =  attacks | (not_ab_bitboard & bitboard) >> 10;
+    // Top right
+    attacks =  attacks | (not_gh_bitboard & bitboard) >> 6;
+    attacks =  attacks | (not_h_bitboard & bitboard) >> 15;
+    // Bottom-left
+    attacks =  attacks | (not_ab_bitboard & bitboard) << 6;
+    attacks =  attacks | (not_a_bitboard & bitboard) << 15;
+    // Bottom-right
+    attacks =  attacks | (not_gh_bitboard & bitboard) << 10;
+    attacks =  attacks | (not_h_bitboard & bitboard) << 17;
+
+    return attacks;
+}
+
+U64 generate_king_attack_mask(int square, int color){
+    U64 attacks = 0ULL;
+    U64 bitboard = 0ULL;
+    bitboard = set_bit(bitboard, square);
+
+    // Right shifts
+    attacks =  attacks | (not_a_bitboard & bitboard) >> 9;
+    attacks =  attacks | bitboard >> 8;
+    attacks =  attacks | (not_h_bitboard & bitboard) >> 7;
+    attacks =  attacks | (not_a_bitboard & bitboard) >> 1;
+
+    attacks =  attacks | (not_h_bitboard & bitboard) << 1;
+    attacks =  attacks | (not_a_bitboard & bitboard) << 7;
+    attacks =  attacks | bitboard << 8;
+    attacks =  attacks | (not_h_bitboard & bitboard) << 9;
+
+    return attacks;
+}
+
+void generate_bishop_rays() {
+    // Loop through all the tiles
+    for (int square = 0; square < 64; square++) {
+        U64 attacks = 0ULL;
+
+        int trow = square / 8;
+        int tfile = square % 8;
+        int row,file;
+
+        // South-East mask
+        for (row = trow+1, file = tfile +1; row<=6 && file <= 6; row++, file++) attacks |= (1ULL << (row * 8 +file));
+        // South-West mask
+        for (row = trow+1, file = tfile -1; row<=6 && file >= 1; row++, file--) attacks |= (1ULL << (row * 8 +file));
+        // North-West mask
+        for (row = trow-1, file = tfile -1; row>=1 && file >= 1; row--, file--) attacks |= (1ULL << (row * 8 +file));
+        // North-East mask
+        for (row = trow-1, file = tfile +1; row>=1 && file <= 6; row--, file++) attacks |= (1ULL << (row * 8 +file));
+        bishop_mask[square] = attacks;
+        queen_mask[square] |= attacks;
+    }
+
+}
+
+void generate_rook_rays() {
+    // Loop through all the tiles
+    for (int square = 0; square < 64; square++) {
+        U64 attacks = 0ULL;
+
+        int actual_row = square / 8;
+        int actual_file = square % 8;
+        int row,file;
+
+        // North mask
+        for (row = actual_row-1; row>=1; row--) attacks |= (1ULL << (row * 8 +actual_file));
+
+        // East mask
+        for (file = actual_file+1; file<=6; file++) attacks |= (1ULL << (actual_row * 8 +file));
+
+        // South mask
+        for (row = actual_row+1; row<=6; row++) attacks |= (1ULL << (row * 8 +actual_file));
+        // West mask
+
+        for (file = actual_file-1; file>=1; file--) attacks |= (1ULL << (actual_row * 8 +file));
+
+        rook_mask[square] = attacks;
+        queen_mask[square] |= attacks;
+    }
+
+}
+
+
 int main() {
     U64 new_bitboard = 0ULL;
-    new_bitboard = generate_pawn_attack_mask(h8,  black);
-    print_bitboard(new_bitboard);
+    generate_bishop_rays();
+    generate_rook_rays();
+//    new_bitboard = generate_king_attack_mask(h8,  white);
+//    print_bitboard(new_bitboard);
+    print_bitboard(MagicConstants::bishop_magic[0]);
     return 0;
 }
