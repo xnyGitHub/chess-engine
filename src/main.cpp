@@ -174,13 +174,18 @@ int get_bit_count(U64 bitboard) {
     return number;
 
 };
+
+int get_lsb_index(U64 bitboard) {
+    return get_bit_count((bitboard & -bitboard)-1);
+}
+
 void generate_rook_move_permutations() {
 
 }
 
 void generate_bishop_move_permutations() {
 
-}
+}.
 
 int main() {
     U64 new_bitboard = 0ULL;
