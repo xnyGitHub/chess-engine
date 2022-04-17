@@ -1,4 +1,5 @@
 #include <iostream>
+#include <bitset>
 #include "../src/magic_constants.h"
 #define U64 unsigned long long
 
@@ -166,7 +167,15 @@ void generate_rook_rays() {
 
 U64 BishopAttacks[64][512]; // 256 K
 U64 RookAttacks  [64][4096]; // 2048K
+
+int get_bit_count(U64 bitboard) {
+    std::bitset<64> board(bitboard);
+    int number = board.count();
+    return number;
+
+};
 void generate_rook_move_permutations() {
+
 }
 
 void generate_bishop_move_permutations() {
@@ -180,5 +189,6 @@ int main() {
 //    new_bitboard = generate_king_attack_mask(h8,  white);
 //    print_bitboard(new_bitboard);
     print_bitboard(MagicConstants::bishop_magic[0]);
+    print_bitboard(rook_mask[0]);
     return 0;
 }
