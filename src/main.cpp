@@ -1,5 +1,6 @@
 #include <iostream>
 #include <bitset>
+#include <math.h>
 #include "../src/magic_constants.h"
 #define U64 unsigned long long
 
@@ -168,6 +169,7 @@ void generate_rook_rays() {
 U64 BishopAttacks[64][512]; // 256 K
 U64 RookAttacks  [64][4096]; // 2048K
 
+
 int get_bit_count(U64 bitboard) {
     std::bitset<64> board(bitboard);
     int number = board.count();
@@ -179,21 +181,41 @@ int get_lsb_index(U64 bitboard) {
     return get_bit_count((bitboard & -bitboard)-1);
 }
 
+U64 get_permutation(U64 attack_mask, int permutation) {
+
+    U64 board = 0ULL;
+    int number_of_bits_in_mask = get_bit_count(attack_mask);
+
+    for (int count = 0; count < number_of_bits_in_mask; count++) {
+        int bit_index = get_lsb_index(attack_mask);
+        attack_mask  = del_bit(attack_mask,bit_index);
+
+        if (permutation & (1 << count)) {
+            board |= (1ULL << bit_index);
+        }
+    }
+    return board;
+}
+
 void generate_rook_move_permutations() {
 
 }
 
 void generate_bishop_move_permutations() {
 
-}.
+}
 
 int main() {
     U64 new_bitboard = 0ULL;
     generate_bishop_rays();
     generate_rook_rays();
-//    new_bitboard = generate_king_attack_mask(h8,  white);
-//    print_bitboard(new_bitboard);
-    print_bitboard(MagicConstants::bishop_magic[0]);
-    print_bitboard(rook_mask[0]);
+
+    int permutations = pow(2,get_bit_count(bishop_mask[g7]));
+    for(int permutation = 0; permutation < permutations; permutation++ ){
+        print_bitboard(get_permutation(bishop_mask[g7],permutation));
+
+    }
+
+
     return 0;
 }
