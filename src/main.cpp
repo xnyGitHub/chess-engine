@@ -166,8 +166,7 @@ void generate_rook_rays() {
 
 }
 
-U64 BishopAttacks[64][512]; // 256 K
-U64 RookAttacks  [64][4096]; // 2048K
+
 
 
 int get_bit_count(U64 bitboard) {
@@ -197,25 +196,35 @@ U64 get_permutation(U64 attack_mask, int permutation) {
     return board;
 }
 
+U64 BishopAttacks[64][512]; // 256 K
+U64 RookAttacks  [64][4096]; // 2048K
 void generate_rook_move_permutations() {
-
+    for (int square = 0; square < 64; square ++) {
+        int permutations = pow(2,get_bit_count(rook_mask[square]));
+        for(int permutation = 0; permutation < permutations; permutation++ ){
+            U64 board_permutation = get_permutation(rook_mask[square],permutation);
+            RookAttacks[square][permutation] = board_permutation;
+        }
+    }
 }
 
 void generate_bishop_move_permutations() {
-
+    for (int square = 0; square < 64; square ++) {
+        int permutations = pow(2,get_bit_count(bishop_mask[square]));
+        for(int permutation = 0; permutation < permutations; permutation++ ){
+            U64 board_permutation = get_permutation(bishop_mask[square],permutation);
+            BishopAttacks[square][permutation] = board_permutation;
+        }
+    }
 }
 
 int main() {
-    U64 new_bitboard = 0ULL;
     generate_bishop_rays();
     generate_rook_rays();
+    generate_bishop_move_permutations();
+    generate_rook_move_permutations();
 
-    int permutations = pow(2,get_bit_count(bishop_mask[g7]));
-    for(int permutation = 0; permutation < permutations; permutation++ ){
-        print_bitboard(get_permutation(bishop_mask[g7],permutation));
-
-    }
-
-
+    print_bitboard(BishopAttacks[5][1]);
+    print_bitboard(RookAttacks[0][4095]);
     return 0;
 }
