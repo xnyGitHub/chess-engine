@@ -19,6 +19,8 @@ enum board_tiles {
 
 enum { white, black };
 
+U64 BishopAttacks[64][512]; // 256 K
+U64 RookAttacks  [64][4096]; // 2048K
 U64 bishop_mask[64];
 U64 rook_mask[64];
 U64 queen_mask[64];
@@ -166,9 +168,6 @@ void generate_rook_rays() {
 
 }
 
-
-
-
 int get_bit_count(U64 bitboard) {
     std::bitset<64> board(bitboard);
     int number = board.count();
@@ -196,8 +195,7 @@ U64 get_permutation(U64 attack_mask, int permutation) {
     return board;
 }
 
-U64 BishopAttacks[64][512]; // 256 K
-U64 RookAttacks  [64][4096]; // 2048K
+
 void generate_rook_move_permutations() {
     for (int square = 0; square < 64; square ++) {
         int permutations = pow(2,get_bit_count(rook_mask[square]));
@@ -218,13 +216,19 @@ void generate_bishop_move_permutations() {
     }
 }
 
+
+void initialise_rook_magic_bitboard() {
+
+}
+
+void initialise_bishop_magic_bitboard() {
+
+}
+
 int main() {
     generate_bishop_rays();
     generate_rook_rays();
     generate_bishop_move_permutations();
     generate_rook_move_permutations();
-
-    print_bitboard(BishopAttacks[5][1]);
-    print_bitboard(RookAttacks[0][4095]);
     return 0;
 }

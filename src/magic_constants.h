@@ -7,4 +7,4 @@ public:
     static const U64 rook_magic[64];
     static const U64 bishop_magic[64];
 };
-#endif //TEST_PROJECT_MAGIC_CONSTANTS_H
+#endif
