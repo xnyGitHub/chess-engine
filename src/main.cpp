@@ -1,7 +1,7 @@
 #include <iostream>
 #include <bitset>
 #include <math.h>
-#include "../src/magic_constants.h"
+#include "../src/constants.h"
 #define U64 unsigned long long
 
 // Right shift = closer to start
@@ -19,9 +19,11 @@ enum board_tiles {
 
 enum { white, black };
 
-U64 bishop_mask[64];
-U64 rook_mask[64];
-U64 queen_mask[64];
+U64 BishopMask[64];
+U64 RookMask[64];
+U64 QueenMask[64];
+U64 BishopAttacks[64][512]; // 256 K
+U64 RookAttacks  [64][4096]; // 2048K
 
 const U64 not_a_bitboard = 18374403900871474942ULL;
 const U64 not_h_bitboard = 9187201950435737471ULL;
@@ -133,8 +135,8 @@ void generate_bishop_rays() {
         for (row = trow-1, file = tfile -1; row>=1 && file >= 1; row--, file--) attacks |= (1ULL << (row * 8 +file));
         // North-East mask
         for (row = trow-1, file = tfile +1; row>=1 && file <= 6; row--, file++) attacks |= (1ULL << (row * 8 +file));
-        bishop_mask[square] = attacks;
-        queen_mask[square] |= attacks;
+        BishopMask[square] = attacks;
+        QueenMask[square] |= attacks;
     }
 
 }
@@ -160,20 +162,16 @@ void generate_rook_rays() {
 
         for (file = actual_file-1; file>=1; file--) attacks |= (1ULL << (actual_row * 8 +file));
 
-        rook_mask[square] = attacks;
-        queen_mask[square] |= attacks;
+        RookMask[square] = attacks;
+        QueenMask[square] |= attacks;
     }
 
 }
-
-
-
 
 int get_bit_count(U64 bitboard) {
     std::bitset<64> board(bitboard);
     int number = board.count();
     return number;
-
 };
 
 int get_lsb_index(U64 bitboard) {
@@ -196,13 +194,12 @@ U64 get_permutation(U64 attack_mask, int permutation) {
     return board;
 }
 
-U64 BishopAttacks[64][512]; // 256 K
-U64 RookAttacks  [64][4096]; // 2048K
+
 void generate_rook_move_permutations() {
     for (int square = 0; square < 64; square ++) {
-        int permutations = pow(2,get_bit_count(rook_mask[square]));
+        int permutations = pow(2,get_bit_count(RookMask[square]));
         for(int permutation = 0; permutation < permutations; permutation++ ){
-            U64 board_permutation = get_permutation(rook_mask[square],permutation);
+            U64 board_permutation = get_permutation(RookMask[square], permutation);
             RookAttacks[square][permutation] = board_permutation;
         }
     }
@@ -210,9 +207,9 @@ void generate_rook_move_permutations() {
 
 void generate_bishop_move_permutations() {
     for (int square = 0; square < 64; square ++) {
-        int permutations = pow(2,get_bit_count(bishop_mask[square]));
+        int permutations = pow(2,get_bit_count(BishopMask[square]));
         for(int permutation = 0; permutation < permutations; permutation++ ){
-            U64 board_permutation = get_permutation(bishop_mask[square],permutation);
+            U64 board_permutation = get_permutation(BishopMask[square], permutation);
             BishopAttacks[square][permutation] = board_permutation;
         }
     }
