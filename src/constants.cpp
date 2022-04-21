@@ -1,9 +1,9 @@
 //
 // Created by Michael on 15/04/2022.
 //
-# include "../src/magic_constants.h"
+# include "../src/constants.h"
 
-const U64 MagicConstants::rook_magic[64] = {
+const U64 Constants::rook_magic[64] = {
         0x2080020500400f0ULL,
         0x28444000400010ULL,
         0x20000a1004100014ULL,
@@ -70,7 +70,7 @@ const U64 MagicConstants::rook_magic[64] = {
         0x4000882304000041ULL,
 };
 
-const U64 MagicConstants::bishop_magic[64] = {
+const U64 Constants::bishop_magic[64] = {
         0x100420000431024ULL,
         0x280800101073404ULL,
         0x42000a00840802ULL,
@@ -135,4 +135,26 @@ const U64 MagicConstants::bishop_magic[64] = {
         0x500d082244010008ULL,
         0x28190d00040014e0ULL,
         0x825201600c082444ULL,
+};
+
+const int Constants::bishop_relevant_bits[64] = {
+        6, 5, 5, 5, 5, 5, 5, 6,
+        5, 5, 5, 5, 5, 5, 5, 5,
+        5, 5, 7, 7, 7, 7, 5, 5,
+        5, 5, 7, 9, 9, 7, 5, 5,
+        5, 5, 7, 9, 9, 7, 5, 5,
+        5, 5, 7, 7, 7, 7, 5, 5,
+        5, 5, 5, 5, 5, 5, 5, 5,
+        6, 5, 5, 5, 5, 5, 5, 6
+};
+
+const int Constants::rook_relevant_bits[64] = {
+        12, 11, 11, 11, 11, 11, 11, 12,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        11, 10, 10, 10, 10, 10, 10, 11,
+        12, 11, 11, 11, 11, 11, 11, 12
 };
