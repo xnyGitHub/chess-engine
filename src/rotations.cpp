@@ -53,6 +53,10 @@ U64 Rotate::flip_diagonally_A1H8(U64 bitboard) {
     return bitboard;
 };
 
-U64 Rotate::rotate_left(unsigned long long bitboard) {return 0ULL;};
+U64 Rotate::rotate_left(U64 bitboard) {
+    return flip_diagonally_A1H8 (flip_vertically (bitboard) );
+};
 
-U64 Rotate::rotate_right(unsigned long long bitboard) {return 0ULL;};
+U64 Rotate::rotate_right(U64 bitboard) {
+    return flip_vertically (flip_diagonally_A1H8 (bitboard) );
+};
