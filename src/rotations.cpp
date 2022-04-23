@@ -21,9 +21,37 @@ U64 Rotate::flip_horizontally(U64 bitboard) {
     return bitboard;
 };
 
-U64 Rotate::flip_diagonally_A1H8(unsigned long long bitboard)  {return 0ULL;};
+U64 Rotate::flip_diagonally_A8H1(U64 bitboard)  {
+    U64 temp_board;
+    const U64 k1 = 0x5500550055005500;
+    const U64 k2 = 0x3333000033330000;
+    const U64 k4 = 0x0f0f0f0f00000000;
 
-U64 Rotate::flip_diagonally_A8H1(unsigned long long bitboard) {return 0ULL;};
+    temp_board  = k4 & (bitboard ^ (bitboard << 28));
+    bitboard ^= temp_board ^ (temp_board >> 28) ;
+    temp_board  = k2 & (bitboard ^ (bitboard << 14));
+    bitboard ^= temp_board ^ (temp_board >> 14) ;
+    temp_board  = k1 & (bitboard ^ (bitboard << 7));
+    bitboard ^= temp_board ^ (temp_board >> 7) ;
+
+    return bitboard;
+};
+
+U64 Rotate::flip_diagonally_A1H8(U64 bitboard) {
+    U64 temp_board;
+    const U64 k1 = 0xaa00aa00aa00aa00;
+    const U64 k2 = 0xcccc0000cccc0000;
+    const U64 k4 = 0xf0f0f0f00f0f0f0f;
+
+    temp_board  = bitboard ^ (bitboard << 36) ;
+    bitboard ^= k4 & (temp_board ^ (bitboard >> 36));
+    temp_board  = k2 & (bitboard ^ (bitboard << 18));
+    bitboard ^= temp_board ^ (temp_board >> 18) ;
+    temp_board  = k1 & (bitboard ^ (bitboard << 9));
+    bitboard ^= temp_board ^ (temp_board >> 9) ;
+
+    return bitboard;
+};
 
 U64 Rotate::rotate_left(unsigned long long bitboard) {return 0ULL;};
 
