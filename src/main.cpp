@@ -186,7 +186,23 @@ U64 get_rook_attack(U64 blockers, board_tiles square) {
     return RookAttacks[square][blockers];
 }
 
+U64 get_queen_move(U64 blocker, int square) {
+    U64 rook_board, bishop_board;
+
+    rook_board = blocker & RookMask[square];
+    rook_board *= Constants::RookMagic[square];
+    rook_board >>= (64- get_bit_count(RookMask[square]));
+    rook_board = RookAttacks[square][rook_board];
+
+    bishop_board = blocker & BishopMask[square];
+    bishop_board *= Constants::BishopMagic[square];
+    bishop_board >>= (64- get_bit_count(BishopMask[square]));
+    bishop_board = BishopAttacks[square][bishop_board];
+
+    return rook_board | bishop_board;
+}
 void generate_rook_move_permutations() {
+
     for (int square = 0; square < 64; square ++) {
         U64 mask = RookMask[square];
         int permutations = pow(2,get_bit_count(mask));
@@ -268,14 +284,15 @@ void generate_bishop_move_permutations() {
     }
 }
 
+
 int main() {
     generate_bishop_rays();
     generate_rook_rays();
     generate_bishop_move_permutations();
     generate_rook_move_permutations();
 
-    U64 blockers = BishopMask[e4];
-    U64 move = get_rook_attack(blockers,e3);
+    U64 blockers = RookMask[b5];
+    U64 move = get_queen_move(blockers,e3);
 
     Utils::print_bitboard(blockers);
     Utils::print_bitboard(move);
