@@ -1,6 +1,6 @@
 #include <iostream>
 #include <bitset>
-#include <math.h>
+#include <cmath>
 #include "../src/constants.h"
 #include "../src/utils.h"
 #define U64 unsigned long long
