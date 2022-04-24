@@ -17,6 +17,16 @@ enum board_tiles {
     a1,b1,c1,d1,e1,f1,g1,h1,
     };
 
+std::string square_tiles[64] {
+    "a8","b8","c8","d8","e8","f8","g8","h8",
+    "a7","b7","c7","d7","e7","f7","g7","h7",
+    "a6","b6","c6","d6","e6","f6","g6","h6",
+    "a5","b5","c5","d5","e5","f5","g5","h5",
+    "a4","b4","c4","d4","e4","f4","g4","h4",
+    "a3","b3","c3","d3","e3","f3","g3","h3",
+    "a2","b2","c2","d2","e2","f2","g2","h2",
+    "a1","b1","c1","d1","e1","f1","g1","h1"
+};
 enum { white, black };
 
 U64 BishopMask[64];
@@ -42,6 +52,28 @@ void print_bitboard(U64 bitboard) {
     }
 
     std::cout << "\n   a b c d e f g h" << "\n\n";
+}
+
+void print_two_bitboard(U64 bitboard, U64 second_board, int square) {
+    std::cout << "   blocker            attacks      " << square_tiles[square] <<"\n";
+    for (int rank = 0; rank < 8; rank++){
+        std::cout << -(rank-8) << "  ";
+        for (int file = 0; file < 8; file++){
+            int square  = rank * 8 + file;
+            int check = (bitboard & (1ULL << square) ) ? 1:0 ;
+            std::cout << check << " ";
+        }
+        std::cout << "   ";
+        for (int file = 0; file < 8; file++){
+            int square  = rank * 8 + file;
+            int check = (second_board & (1ULL << square) ) ? 1:0 ;
+            std::cout << check << " ";
+        }
+        std::cout << "\n";
+    }
+
+    std::cout << "\n   a b c d e f g h";
+    std::cout << "    a b c d e f g h" << "\n\n";
 }
 
 U64 set_bit(U64 bitboard, int tile) {
@@ -205,12 +237,55 @@ void generate_rook_move_permutations() {
     }
 }
 
+int hash_into_key(U64 blockers, U64 magic, int bit_count) {
+    blockers *= magic;
+    blockers >>= (64- bit_count);
+    return blockers;
+}
+
+U64 get_bishop_attack(U64 blockers, board_tiles square) {
+    int bit_count = get_bit_count(BishopMask[square]);
+    blockers &= BishopMask[square];
+    blockers *= Constants::bishop_magic[square];
+    blockers >>= (64- bit_count);
+
+    return BishopAttacks[square][blockers];
+}
 void generate_bishop_move_permutations() {
     for (int square = 0; square < 64; square ++) {
-        int permutations = pow(2,get_bit_count(BishopMask[square]));
-        for(int permutation = 0; permutation < permutations; permutation++ ){
-            U64 board_permutation = get_permutation(BishopMask[square], permutation);
-            BishopAttacks[square][permutation] = board_permutation;
+        int mask = BishopMask[square];
+        int permutations = pow(2,get_bit_count(mask));
+        for(int i = 0; i < permutations; i++ ){
+            U64 attacks = 0ULL;
+            U64 blockers = get_permutation(BishopMask[square], i);
+            int rank = square / 8;
+            int file = square % 8;
+            int r,f;
+
+            for (r = rank+1, f = file+1; r <= 7 && f <= 7; r++, f++)  attacks |= (1ULL << ((r * 8) +f));
+                if ((blockers & (1ULL << ((r * 8) +f))) != 0ULL) {
+                    break;
+                }
+
+            for (r = rank-1, f = file+1; r >= 0 && f <= 7; r--, f++) attacks |= (1ULL << ((r * 8) +f));
+                if ((blockers & (1ULL << ((r * 8) +f))) != 0ULL) {
+                    break;
+                }
+
+            for (r = rank - 1, f = file - 1; r >= 0 && f >= 0; r--, f--) attacks |= (1ULL << ((r * 8) +f));
+                if ((blockers & (1ULL << ((r * 8) +f))) != 0ULL) {
+                    break;
+                }
+
+            for (r = rank + 1, f = file - 1; r <= 7 && f >= 0; r++, f--) attacks |= (1ULL << ((r * 8) +f));
+                if ((blockers & (1ULL << ((r * 8) +f))) != 0ULL) {
+                    break;
+                }
+
+            int key = hash_into_key(blockers,Constants::bishop_magic[square],get_bit_count(mask));
+//            print_bitboard(blockers);
+            print_two_bitboard(blockers,attacks,square);
+            BishopAttacks[square][key] = attacks;
         }
     }
 }
