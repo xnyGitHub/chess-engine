@@ -4,8 +4,8 @@
 #include<string>
 class Constants {
 public:
-    static const U64 rook_magic[64];
-    static const U64 bishop_magic[64];
+    static const U64 RookMagic[64];
+    static const U64 BishopMagic[64];
     static const int bishop_relevant_bits[64];
     static const int rook_relevant_bits[64];
     static const U64 not_a_bitboard;

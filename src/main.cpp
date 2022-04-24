@@ -38,6 +38,22 @@ U64 del_bit(U64 bitboard, int tile) {
     return bitboard & (1ULL << tile) ? bitboard ^ (1ULL << tile) : 0;
 }
 
+int get_bit_count(U64 bitboard) {
+    std::bitset<64> board(bitboard);
+    int number = (int) board.count();
+    return number;
+};
+
+int get_lsb_index(U64 bitboard) {
+    return get_bit_count((bitboard & -bitboard)-1);
+}
+
+int hash_into_key(U64 blockers, U64 magic, int bit_count) {
+    blockers *= magic;
+    blockers >>= (64- bit_count);
+    return (int) blockers;
+}
+
 U64 generate_pawn_attack_mask(int square, int color){
     U64 attacks = 0ULL;
     U64 bitboard = 0ULL;
@@ -54,7 +70,7 @@ U64 generate_pawn_attack_mask(int square, int color){
     return attacks;
 }
 
-U64 generate_knight_attack_mask(int square, int color){
+U64 generate_knight_attack_mask(int square){
     U64 attacks = 0ULL;
     U64 bitboard = 0ULL;
     bitboard = set_bit(bitboard, square);
@@ -75,7 +91,7 @@ U64 generate_knight_attack_mask(int square, int color){
     return attacks;
 }
 
-U64 generate_king_attack_mask(int square, int color){
+U64 generate_king_attack_mask(int square){
     U64 attacks = 0ULL;
     U64 bitboard = 0ULL;
     bitboard = set_bit(bitboard, square);
@@ -142,16 +158,6 @@ void generate_rook_rays() {
 
 }
 
-int get_bit_count(U64 bitboard) {
-    std::bitset<64> board(bitboard);
-    int number = (int) board.count();
-    return number;
-};
-
-int get_lsb_index(U64 bitboard) {
-    return get_bit_count((bitboard & -bitboard)-1);
-}
-
 U64 get_permutation(U64 attack_mask, int permutation) {
     U64 board = 0ULL;
     int number_of_bits_in_mask = get_bit_count(attack_mask);
@@ -168,22 +174,16 @@ U64 get_permutation(U64 attack_mask, int permutation) {
 
 U64 get_bishop_attack(U64 blockers, board_tiles square) {
     blockers &= BishopMask[square];
-    blockers *= Constants::bishop_magic[square];
+    blockers *= Constants::BishopMagic[square];
     blockers >>= (64- get_bit_count(BishopMask[square]));
     return BishopAttacks[square][blockers];
 }
 
 U64 get_rook_attack(U64 blockers, board_tiles square) {
     blockers &= RookMask[square];
-    blockers *= Constants::rook_magic[square];
+    blockers *= Constants::RookMagic[square];
     blockers >>= (64- get_bit_count(RookMask[square]));
     return RookAttacks[square][blockers];
-}
-
-int hash_into_key(U64 blockers, U64 magic, int bit_count) {
-    blockers *= magic;
-    blockers >>= (64- bit_count);
-    return (int) blockers;
 }
 
 void generate_rook_move_permutations() {
@@ -223,7 +223,7 @@ void generate_rook_move_permutations() {
                 if ((1ULL << (row * 8 + f)) & blockers) break;
             }
 
-            int key = hash_into_key(blockers,Constants::rook_magic[square],get_bit_count(mask));
+            int key = hash_into_key(blockers,Constants::RookMagic[square],get_bit_count(mask));
             RookAttacks[square][key] = attacks;
         }
     }
@@ -242,31 +242,27 @@ void generate_bishop_move_permutations() {
             int file = square % 8;
             int r,f;
 
-            for (r = rank+1, f = file+1; r <= 7 && f <= 7; r++, f++)
-            {
+            for (r = rank+1, f = file+1; r <= 7 && f <= 7; r++, f++){
                 attacks |= (1ULL << (r * 8 + f));
                 if ((1ULL << (r * 8 + f)) & blockers) break;
             }
 
-            for (r = rank-1, f = file+1; r >= 0 && f <= 7; r--, f++)
-            {
+            for (r = rank-1, f = file+1; r >= 0 && f <= 7; r--, f++){
                 attacks |= (1ULL << (r * 8 + f));
                 if ((1ULL << (r * 8 + f)) & blockers) break;
             }
 
-            for (r = rank - 1, f = file - 1; r >= 0 && f >= 0; r--, f--)
-            {
+            for (r = rank - 1, f = file - 1; r >= 0 && f >= 0; r--, f--){
                 attacks |= (1ULL << (r * 8 + f));
                 if ((1ULL << (r * 8 + f)) & blockers) break;
             }
 
-            for (r = rank + 1, f = file - 1; r <= 7 && f >= 0; r++, f--)
-            {
+            for (r = rank + 1, f = file - 1; r <= 7 && f >= 0; r++, f--){
                 attacks |= (1ULL << (r * 8 + f));
                 if ((1ULL << (r * 8 + f)) & blockers) break;
             }
 
-            int key = hash_into_key(blockers,Constants::bishop_magic[square],get_bit_count(mask));
+            int key = hash_into_key(blockers,Constants::BishopMagic[square],get_bit_count(mask));
             BishopAttacks[square][key] = attacks;
         }
     }
@@ -278,13 +274,11 @@ int main() {
     generate_bishop_move_permutations();
     generate_rook_move_permutations();
 
-//    print_bitboard(BishopAttacks[5][1]);
-//    print_bitboard(RookAttacks[0][4095]);
-
     U64 blockers = BishopMask[e4];
-
     U64 move = get_rook_attack(blockers,e3);
+
     Utils::print_bitboard(blockers);
     Utils::print_bitboard(move);
+
     return 0;
 }
