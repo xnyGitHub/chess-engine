@@ -56,3 +56,8 @@ const int Constants::rook_relevant_bits[64] = {
         11, 10, 10, 10, 10, 10, 10, 11,
         12, 11, 11, 11, 11, 11, 11, 12
 };
+
+const U64 Constants::not_a_bitboard = 18374403900871474942ULL;
+const U64 Constants::not_h_bitboard = 9187201950435737471ULL;
+const U64 Constants::not_ab_bitboard = 18229723555195321596ULL;
+const U64 Constants::not_gh_bitboard = 4557430888798830399ULL;

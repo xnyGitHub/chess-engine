@@ -35,10 +35,7 @@ U64 QueenMask[64];
 U64 BishopAttacks[64][512]; // 256 K
 U64 RookAttacks  [64][4096]; // 2048K
 
-const U64 not_a_bitboard = 18374403900871474942ULL;
-const U64 not_h_bitboard = 9187201950435737471ULL;
-const U64 not_ab_bitboard = 18229723555195321596ULL;
-const U64 not_gh_bitboard = 4557430888798830399ULL;
+
 
 void print_bitboard(U64 bitboard) {
     for (int rank = 0; rank < 8; rank++){
@@ -94,11 +91,11 @@ U64 generate_pawn_attack_mask(int square, int color){
 
     // White pawn
     if (!color) {
-        attacks =  attacks | (not_a_bitboard & bitboard) >> 9;
-        attacks =  attacks | (not_h_bitboard & bitboard) >> 7;
+        attacks =  attacks | (Constants::not_a_bitboard & bitboard) >> 9;
+        attacks =  attacks | (Constants::not_h_bitboard & bitboard) >> 7;
     } else {
-        attacks = attacks | (not_a_bitboard & bitboard) << 7;
-        attacks = attacks | (not_h_bitboard & bitboard) << 9;
+        attacks = attacks | (Constants::not_a_bitboard & bitboard) << 7;
+        attacks = attacks | (Constants::not_h_bitboard & bitboard) << 9;
     }
     return attacks;
 }
@@ -109,17 +106,17 @@ U64 generate_knight_attack_mask(int square, int color){
     bitboard = set_bit(bitboard, square);
 
     // Top- left
-    attacks =  attacks | (not_a_bitboard & bitboard) >> 17;
-    attacks =  attacks | (not_ab_bitboard & bitboard) >> 10;
+    attacks =  attacks | (Constants::not_a_bitboard & bitboard) >> 17;
+    attacks =  attacks | (Constants::not_ab_bitboard & bitboard) >> 10;
     // Top right
-    attacks =  attacks | (not_gh_bitboard & bitboard) >> 6;
-    attacks =  attacks | (not_h_bitboard & bitboard) >> 15;
+    attacks =  attacks | (Constants::not_gh_bitboard & bitboard) >> 6;
+    attacks =  attacks | (Constants::not_h_bitboard & bitboard) >> 15;
     // Bottom-left
-    attacks =  attacks | (not_ab_bitboard & bitboard) << 6;
-    attacks =  attacks | (not_a_bitboard & bitboard) << 15;
+    attacks =  attacks | (Constants::not_ab_bitboard & bitboard) << 6;
+    attacks =  attacks | (Constants::not_a_bitboard & bitboard) << 15;
     // Bottom-right
-    attacks =  attacks | (not_gh_bitboard & bitboard) << 10;
-    attacks =  attacks | (not_h_bitboard & bitboard) << 17;
+    attacks =  attacks | (Constants::not_gh_bitboard & bitboard) << 10;
+    attacks =  attacks | (Constants::not_h_bitboard & bitboard) << 17;
 
     return attacks;
 }
@@ -130,15 +127,15 @@ U64 generate_king_attack_mask(int square, int color){
     bitboard = set_bit(bitboard, square);
 
     // Right shifts
-    attacks =  attacks | (not_a_bitboard & bitboard) >> 9;
+    attacks =  attacks | (Constants::not_a_bitboard & bitboard) >> 9;
     attacks =  attacks | bitboard >> 8;
-    attacks =  attacks | (not_h_bitboard & bitboard) >> 7;
-    attacks =  attacks | (not_a_bitboard & bitboard) >> 1;
+    attacks =  attacks | (Constants::not_h_bitboard & bitboard) >> 7;
+    attacks =  attacks | (Constants::not_a_bitboard & bitboard) >> 1;
     // Left shifts
-    attacks =  attacks | (not_h_bitboard & bitboard) << 1;
-    attacks =  attacks | (not_a_bitboard & bitboard) << 7;
+    attacks =  attacks | (Constants::not_h_bitboard & bitboard) << 1;
+    attacks =  attacks | (Constants::not_a_bitboard & bitboard) << 7;
     attacks =  attacks | bitboard << 8;
-    attacks =  attacks | (not_h_bitboard & bitboard) << 9;
+    attacks =  attacks | (Constants::not_h_bitboard & bitboard) << 9;
 
     return attacks;
 }
