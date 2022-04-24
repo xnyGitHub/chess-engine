@@ -3,6 +3,7 @@
 #include <cmath>
 #include "../src/constants.h"
 #include "../src/utils.h"
+#include "../src/board.h"
 #define U64 unsigned long long
 
 // Right shift = closer to start
@@ -297,5 +298,11 @@ int main() {
     Utils::print_bitboard(blockers);
     Utils::print_bitboard(move);
 
+    Board board;
+    U64 black_board = board.get_black_board();
+    U64 white_board = board.get_white_board();
+    Utils::print_bitboard(black_board);
+    Utils::print_bitboard(white_board);
+    Utils::print_bitboard(board.get_board());
     return 0;
 }
