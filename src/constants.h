@@ -1,7 +1,7 @@
 #ifndef MAGIC_CONSTANTS_H
 #define MAGIC_CONSTANTS_H
 #define U64 unsigned long long
-
+#include<string>
 class Constants {
 public:
     static const U64 rook_magic[64];
@@ -12,5 +12,6 @@ public:
     static const U64 not_h_bitboard;
     static const U64 not_ab_bitboard;
     static const U64 not_gh_bitboard;
+    static const std::string square_tiles[64];
 };
 #endif
