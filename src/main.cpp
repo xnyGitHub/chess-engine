@@ -2,6 +2,7 @@
 #include <bitset>
 #include <math.h>
 #include "../src/constants.h"
+#include "../src/utils.h"
 #define U64 unsigned long long
 
 // Right shift = closer to start
@@ -24,43 +25,6 @@ U64 RookMask[64];
 U64 QueenMask[64];
 U64 BishopAttacks[64][512]; // 256 K
 U64 RookAttacks[64][4096]; // 2048K
-
-
-
-void print_bitboard(U64 bitboard) {
-    for (int rank = 0; rank < 8; rank++){
-        std::cout << -(rank-8) << "  ";
-        for (int file = 0; file < 8; file++){
-            int square  = rank * 8 + file;
-            int check = (bitboard & (1ULL << square) ) ? 1:0 ;
-            std::cout << check << " ";
-        }
-        std::cout << "\n";
-    }
-    std::cout << "\n   a b c d e f g h" << "\n\n";
-}
-
-void print_two_bitboard(U64 bitboard, U64 second_board, int tile) {
-    std::cout << "   blocker            attacks      " << Constants::square_tiles[tile] << "\n";
-    for (int rank = 0; rank < 8; rank++){
-        std::cout << -(rank-8) << "  ";
-        for (int file = 0; file < 8; file++){
-            int square  = rank * 8 + file;
-            int check = (bitboard & (1ULL << square) ) ? 1:0 ;
-            std::cout << check << " ";
-        }
-        std::cout << "   ";
-        for (int file = 0; file < 8; file++){
-            int square  = rank * 8 + file;
-            int check = (second_board & (1ULL << square) ) ? 1:0 ;
-            std::cout << check << " ";
-        }
-        std::cout << "\n";
-    }
-
-    std::cout << "\n   a b c d e f g h";
-    std::cout << "    a b c d e f g h" << "\n\n";
-}
 
 U64 set_bit(U64 bitboard, int tile) {
     return bitboard | (1ULL << tile);
@@ -320,7 +284,7 @@ int main() {
     U64 blockers = BishopMask[e4];
 
     U64 move = get_rook_attack(blockers,e3);
-    print_bitboard(blockers);
-    print_bitboard(move);
+    Utils::print_bitboard(blockers);
+    Utils::print_bitboard(move);
     return 0;
 }
