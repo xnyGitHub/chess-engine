@@ -30,5 +30,44 @@ unsigned int Move::get_flags() {
 std::string Move::get_string_move() {
     // Return a string representation of the move
     // To-do
-    return "Not implemented";
+    if (get_flags() == Move::king_castle){
+        return "0-0";
+    } else if (get_flags() == Move::queen_castle) {
+        return "0-0-0";
+    }
+
+    std::string move_notation;
+    int start = get_start();
+    int   end = get_stop();
+
+    if  (get_flags() == Move::quiet){
+        return convert_to_fen(start) + convert_to_fen(end);
+    } else if  (get_flags() == Move::double_pawn_push){
+        return  convert_to_fen(start)+ convert_to_fen(end);
+    } else if (get_flags() == Move::captures) {
+        return convert_to_fen(start) + 'x' + convert_to_fen(end);
+    } else if  (get_flags() == Move::ep_capture){
+        return  convert_to_fen(start) + 'x' + convert_to_fen(end) + " e.p";
+    } else if  (get_flags() == Move::knight_promotion){
+        return  convert_to_fen(end) + "=N";
+    } else if  (get_flags() == Move::bishop_promotion){
+        return  convert_to_fen(end) + "=B";
+    } else if  (get_flags() == Move::rook_promotion){
+        return  convert_to_fen(end) + "=R";
+    } else if  (get_flags() == Move::queen_promotion){
+        return  convert_to_fen(end) + "=Q";
+    }  else if  (get_flags() == Move::knight_promotion_capture){
+        return  convert_to_fen(end) + "x=N";
+    } else if  (get_flags() == Move::bishop_promotion_capture){
+        return  convert_to_fen(end) + "x=B";
+    } else if  (get_flags() == Move::rook_promotion_capture){
+        return  convert_to_fen(end) + "x=R";
+    } else if  (get_flags() == Move::queen_promotion_capture){
+        return  convert_to_fen(end) + "x=Q";
+    }
+
+}
+
+std::string Move::convert_to_fen(int index) {
+    return std::string({FILES[index%8], RANKS[index/8]});
 }

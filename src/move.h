@@ -35,6 +35,7 @@ private:
     unsigned int _move;
 
     // Constants to convert move bits to string
+    std::string convert_to_fen(int index);
     const static char RANKS[8];
     const static char FILES[8];
 };
